@@ -9,7 +9,7 @@
                 :components
                 ((:file "package")
                  (:file "main"))))
-  :description "Purely Common Lisp Calculator made for CLOSOS"
+  :description "Calculator made purely in Common Lisp for CLOSOS"
   :in-order-to ((test-op (test-op "claculator/tests"))))
 
 (defsystem "claculator/tests"

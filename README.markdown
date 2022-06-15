@@ -1,4 +1,4 @@
-# Claculator - Purely Common Lisp Calculator made for CLOSOS
+# Claculator - Calculator made purely in Common Lisp for CLOSOS
 ## TODO: Usage
 ## TODO: Installation
 ## Author

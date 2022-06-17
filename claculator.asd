@@ -3,7 +3,8 @@
   :author "Hamza Shahid"
   :license "BSD 2 Clause License"
   :depends-on ("mcclim"
-               "bt-semaphore") ; Todo or not to do?
+               "bt-semaphore"  ; Todo or not to do?
+               "str")
   :serial t
   :components ((:module "src"
                 :components

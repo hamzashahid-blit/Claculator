@@ -3,22 +3,6 @@
 (defparameter *text-style*
   (c:make-text-style :sans-serif :roman :large))
 
-
-(defgeneric calculator-frame-top-level (frame &key command-parser
-                                                   command-unparser
-                                                   partial-command-parser
-                                                   prompt))
-
-(defmethod calculator-frame-top-level
-    ((frame c:application-frame)
-     &key (command-parser 'command-line-command-parser)
-       (command-unparser 'command-line-command-unparser)
-       (partial-command-parser
-        'command-line-read-remaining-arguments-for-partial-command)
-       (prompt "Command: "))
-  (declare (ignore command-parser command-unparser partial-command-parser prompt))
-  (clim-extensions:simple-event-loop))
-
 (defun make-button (label operator &key width height
                                         (max-width c:+fill+) min-width
                                         (max-height c:+fill+) min-height)
@@ -60,27 +44,21 @@
     (eval  (make-button "="  #'calculate))
     (ac    (make-button "AC" #'init-ac))
     (ce    (make-button "CE" #'init-ce))
-    (int :interactor
-         :width 300
-         :height 100))
+    (int :interactor))
   (:layouts
-    (default (with-slots (screen-field) c:*application-frame*
-               (c:vertically ()         ;(:width 150 :max-width 500)
-                 (setf screen-field screen)
-                 ;; screen
-                 (c:horizontally ()     ;(:height 50)
-                   ac ce)
-                 (c:tabling (:grid t)
-                   (list one two three add)
-                   (list four five six sub)
-                   (list seven eight nine mult)
-                   (list zero div eval int)
-                   )))))
-  ;; (:top-level (calculator-frame-top-level . nil))
-  )
+    (default (c:vertically ()         ;(:width 150 :max-width 500)
+               (setf (screen-field c:*application-frame*) screen)
+               ;; screen
+               (c:horizontally ()     ;(:height 50)
+                 ac ce)
+               (c:tabling (:grid t)
+                 (list one two three add)
+                 (list four five six sub)
+                 (list seven eight nine mult)
+                 (list zero div eval int))))))
 
 (defun show ()
-  (setf (c:gadget-value (slot-value c:*application-frame* 'screen-field))
+  (setf (c:gadget-value (screen-field c:*application-frame*))
         (str:join #\Space (reverse (mapcar #'write-to-string (state c:*application-frame*))))))
 
 (defun operator? (operator)
@@ -89,10 +67,9 @@
 (defun queue-number (number)
   (lambda (gadget)
     (declare (ignore gadget))
-    (with-slots (state) c:*application-frame*
+    (with-accessors ((state state)) c:*application-frame*
       (let ((last-elem (first state)))
         ;; Check if the last number on stack is an operator
-        ;; (format (c:find-pane-named c:*application-frame* 'int) "~a~%" last-elem)
         (if (operator? last-elem) ;(evenp (length state))
           (when (and (< (length state) 3))
             (push number state))
@@ -103,7 +80,7 @@
 (defun queue-operator (operator)
   (lambda (gadget)
     (declare (ignore gadget))
-    (with-slots (state) c:*application-frame*
+    (with-accessors ((state state)) c:*application-frame*
       (when (and (< (length state) 3)
                  (oddp (length state)))
         (push operator state)
@@ -111,7 +88,7 @@
 
 (defun calculate (gadget)
   (declare (ignore gadget))
-  (with-slots (state) c:*application-frame*
+  (with-accessors ((state state)) c:*application-frame*
     (when (= 3 (length state))
       (setf state (list (funcall (second state) (first state) (third state))))
       (show))))
@@ -121,6 +98,8 @@
   (setf (state c:*application-frame*) '(0))
   (show))
 
+;; TODO: FIX INIT-CE, popping won't work as it will just pop the output,
+;;       You need to keep a history 
 (defun init-ce (gadget)
   (declare (ignore gadget))
   (pop (state c:*application-frame*))
@@ -134,33 +113,3 @@
   ;; bt:make-thread
   ;; lambda ()
   (c:run-frame-top-level (c:make-application-frame 'claculator)))
-
-
-
-
-
-
-
-
-
-
-
-
-;; (str:join #\Space (mapcar #'write-to-string '(0 + 1)))
-;; (defun display ()
-;;   (with-slots (state) c:*application-frame*
-;;     (setf (screen-field c:*application-frame*)
-;;       (str:join #\Space (mapcar #'write-to-string state)))
-;;     (when (= 3 (length state))
-;;       (apply (second state) (first state) (third state)))))
-
-;; (define-claculator-command (queue-number :name t) ((operand 'integer))
-;;   (push operand (state c:*application-frame*)))
-
-;; (define-claculator-command (queue-number :name t) ((operator 'function))
-;;   (push operator (state c:*application-frame*)))
-
-;; ;; (define-claculator-command (calculate :name t) ()
-;; ;;   (with-slots (state) c:*application-frame*
-;; ;;     (when (= 3 (length state))
-;; ;;       (apply (second state) (first state) (third state)))))

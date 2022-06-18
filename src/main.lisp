@@ -57,12 +57,12 @@
                  (list seven eight nine mult)
                  (list zero div eval int))))))
 
+(defun operator? (operator)
+  (not (numberp operator)))
+
 (defun show ()
   (setf (c:gadget-value (screen-field c:*application-frame*))
         (str:join #\Space (reverse (mapcar #'write-to-string (state c:*application-frame*))))))
-
-(defun operator? (operator)
-  (not (numberp operator)))
 
 (defun queue-number (number)
   (lambda (gadget)

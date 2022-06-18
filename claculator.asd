@@ -9,6 +9,8 @@
   :components ((:module "src"
                 :components
                 ((:file "package")
+                 (:file "clac-ops")
+                 (:file "lexer")
                  (:file "main"))))
   :description "Calculator made purely in Common Lisp for CLOSOS"
   :in-order-to ((test-op (test-op "claculator/tests"))))

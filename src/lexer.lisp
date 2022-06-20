@@ -1,5 +1,7 @@
 (in-package :claculator)
 
+;;; Commented code is useless and just for reference.
+
 ;; (cond
 ;;   ((string= c "+") (push (gethash "+" *clac-ops*) expr))
 ;;   ((string= c "-") (push (gethash "-" *clac-ops*) expr)))
@@ -33,6 +35,17 @@
 ;;             (t ,error-expr-list))
 ;;        ,expr)))
 
+;; (let ((char-str (string-upcase (string char-str))))
+;;   ;; TODO: FIX THIS:
+;;   ;;       (tokenize-expr-ops-cond operator-hash-table stream char-str :eof (format t "NOOOOO"))
+;;   ;;       to stop repitition as done below. This above macro should read  
+;;   (cond
+;;     ((string= char-str "+") (push '+ tokens) (read-char stream t :eof))
+;;     ((string= char-str "*") (push '* tokens) (read-char stream t :eof))
+;;     (t (format t "[ERROR] Could not completely tokenize string. ")
+;;        (format t "Unexpected char ~s" char-str)
+;;        (return tokens))))
+
 (defun gen-tokenize-expr-ops-cond (hash-map stream str-to-compare eof-value error-expr-list)
   (let ((tokens (gensym)))
     `(let ((,tokens '()))
@@ -53,26 +66,39 @@
   ;; (format t "~a, ~a, ~a, ~a; ~a~%" hash-map stream str-to-compare eof-value error-expr)
   (gen-lexer-ops-cond hash-map stream str-to-compare eof-value error-expr))
 
-(defun tokenize-expr (str-expr ops-hash-map)
+(defun is-token-operator? (char operator-hash-table)
+  "Takes in a character CHAR and a hash-table containing operators OPERATOR-HASH-TABLE.
+It turns CHAR into a string and capitalizes it. Then tries to find it in OPERATOR-HASH-TABLE
+Returns T or NIL if it was found or not as its first value and the
+actual operator-function associated with it as the second value"
+  (let ((char-str (string-upcase (string char))))
+    (maphash (lambda (k v)
+               (when (string= char-str k)
+                 (return-from is-token-operator? (values t v))))
+      operator-hash-table)
+
+    (values nil nil)))
+
+(defun tokenize-expr (str-expr operator-hash-table)
   "Takes in an algebraic string expression and tokenizes it into a list of symbols and numbers which could be pased to a parser to parse.
 For example: \"2+3*20% /5\" -> '(2 + 3 * 0.2 / 5)"
   (with-input-from-string (stream str-expr)
     (let ((tokens '()))
-      (loop :for c := (peek-char t stream nil :eof)
-            :until (eql c :eof)
-            :do (format t "~a, ~a~%" c tokens)
-                (if (digit-char-p c)
+      (loop :for char := (peek-char t stream nil :eof)
+            :until (eql char :eof)
+            :do (format t "~a, ~a~%" char tokens)
+                (if (digit-char-p char)
                   (push (tokenize-number stream) tokens)
-                  (let ((c (string-upcase (string c))))
-                    (cond
-                      ;; TODO: FIX THIS:
-                      ;;       (tokenize-expr-ops-cond ops-hash-map stream c :eof (format t "NOOOOO"))
-                      ;;       to stop repitition as done below. This above macro should read  
-                      ((string= c "+") (push '+ tokens) (read-char stream t :eof))
-                      ((string= c "*") (push '* tokens) (read-char stream t :eof))
-                      (t (format t "[ERROR] Could not completely tokenize string. ")
-                         (format t "Unexpected char ~s" c)
-                         (return tokens)))))
+                  (multiple-value-bind (is-operator? token)
+                    (is-token-operator? char operator-hash-table)
+                    (if is-operator?
+                      (progn
+                        (push token tokens)
+                        (read-char stream t :eof))
+                      (progn
+                        (format t "[ERROR] Could not completely tokenize string. ")
+                        (format t "Unexpected char ~s" char)
+                        (return tokens)))))
             :finally (return (reverse tokens))))))
 
 ;;;     ttttp      cc
@@ -80,8 +106,8 @@ For example: \"2+3*20% /5\" -> '(2 + 3 * 0.2 / 5)"
 (defun tokenize-number (stream)
   "Tokenizes a number taken from a stream. and returns it"
   (let ((digits '()))
-    (loop :for c := (peek-char t stream nil :eof)
-          :while (and (not (eql :eof c)) (str:digit? (string c)))
-          :do (push c digits)
+    (loop :for char := (peek-char t stream nil :eof)
+          :while (and (not (eql :eof char)) (str:digit? (string char)))
+          :do (push char digits)
               (read-char stream nil :eof)
           :finally (return (parse-integer (coerce (reverse digits) 'string))))))

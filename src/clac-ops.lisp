@@ -1,25 +1,29 @@
 (in-package :claculator)
 
-;; TODO: Mind "3+-2"
-
-(defmacro defhash-map (name (key value) &rest other-pairs)
-  "Macro for GEN-EXPR-DEFHASH-MAP"
-  (gen-expr-defhash-map name (cons (list key value) other-pairs)))
-
-(defun gen-expr-defhash-map (name definitions)
-  "Creates a global variable with DEFPARAMETER with name containing a new hash-map with all the definitions in (key value) pair lists."
+(defun gen-define-operators (name &rest tokens)
+  "Defines Operators with the symbol NAME and tokens, TOKENS."
   `(defparameter ,name
-     ,(let ((table (gensym)))
-        `(let ((,table (make-hash-table :test 'equalp)))
-           (setf ,@(loop :for def :in definitions
-                     :collect `(gethash ,(first def) ,table)
-                     :collect `(quote ,(second def))))
-           ,table))))
+     (coerce (quote ,@tokens) 'vector))) 
 
+(defmacro define-operators (name (key value) &rest other-pairs)
+  (gen-define-operators name (cons (list key value) other-pairs)))
+
+;; ---------------    
+;; Abstractions
+
+(defun operators-count (operators)
+  (length operators))
+
+(defun find-operator (str operators &key (test #'string=))
+  "Tries to find STR in OPERATORS based on TEST"
+  (find str operators :test test))
+
+;; ---------------
+    
 (defmethod percentage (arg)
   (/ arg 100))
 
-(defhash-map *clac-ops*
+(define-operators *clac-ops*
   ("+" +)
   ("-" -)
   ("*" *)
@@ -27,9 +31,3 @@
   ("%" percentage)
   ("mod" mod)
   ("rem" rem))
-
-(defmacro define-operators (hash-map &rest tokens)
-  `(defhash-map ,hash-map ,@tokens))
-
-(defun operators-count (operators)
-  (hash-table-size operators))

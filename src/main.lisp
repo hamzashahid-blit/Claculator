@@ -71,7 +71,7 @@
       (let ((last-elem (first state)))
         ;; Check if the last number on stack is an operator
         (if (operator? last-elem) ;(evenp (length state))
-          (when (and (< (length state) 3))
+          (when (< (length state) 3)
             (push number state))
           (setf (first state) (+ (* 10 last-elem) number))))
 
@@ -95,7 +95,7 @@
 
 (defun init-ac (gadget)
   (declare (ignore gadget))
-  (setf (state c:*application-frame*) '(0))
+  (setf (state c:*application-frame*) (list 0))
   (show))
 
 ;; TODO: FIX INIT-CE, popping won't work as it will just pop the output,
@@ -109,7 +109,15 @@
   (init-ac t)
   (c:frame-exit c:*application-frame*))
 
-(defun run ()
+(defun claculator ()
+  (define-operators *clac-ops*
+    ("+" +)
+    ("-" -)
+    ("*" *)
+    ("/" /)
+    ("%" percentage)
+    ("mod" mod)
+    ("rem" rem))
   ;; bt:make-thread
   ;; lambda ()
   (c:run-frame-top-level (c:make-application-frame 'claculator)))

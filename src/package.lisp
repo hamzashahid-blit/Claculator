@@ -2,5 +2,5 @@
   (:use :clim-lisp)
   (:local-nicknames (:c :clim)
                     (:a :alexandria))
-  (:export run))
+  (:export claculator))
 (in-package :claculator)

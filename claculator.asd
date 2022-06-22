@@ -1,4 +1,4 @@
-(defsystem "claculator"
+(asdf:defsystem "claculator"
   :version "0.1.0"
   :author "Hamza Shahid"
   :license "BSD 2 Clause License"
@@ -14,15 +14,19 @@
                  (:file "parser")
                  (:file "main"))))
   :description "Calculator made purely in Common Lisp for CLOSOS"
-  :in-order-to ((test-op (test-op "claculator/tests"))))
+  :in-order-to ((asdf:test-op (asdf:test-op "claculator/tests"))))
 
-(defsystem "claculator/tests"
+(asdf:defsystem "claculator/tests"
   :author "Hamza Shahid"
   :license "BSD 2 Clause License"
   :depends-on ("claculator"
-               "rove")
+               "cl-naive-tests")
   :components ((:module "tests"
                 :components
-                ((:file "main"))))
+                ((:file "package")
+                 (:file "main"))))
   :description "Test system for claculator"
-  :perform (test-op (op c) (symbol-call :rove :run c)))
+  :perform (asdf:test-op (op c)
+             (declare (ignore c))
+             (symbol-call :cl-naive-tests :run)
+             (symbol-call :cl-naive-tests :report)))

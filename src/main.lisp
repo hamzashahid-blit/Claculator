@@ -110,14 +110,9 @@
   (c:frame-exit c:*application-frame*))
 
 (defun claculator ()
-  (define-operators *clac-ops*
-    ("+" +)
-    ("-" -)
-    ("*" *)
-    ("/" /)
-    ("%" percentage)
-    ("mod" mod)
-    ("rem" rem))
-  ;; bt:make-thread
-  ;; lambda ()
   (c:run-frame-top-level (c:make-application-frame 'claculator)))
+
+(defun claculator-mt ()
+  "Run the application in a separate thread. The mt stands for Multi-Threaded"
+  (bt:make-thread
+    (lambda () (c:run-frame-top-level (c:make-application-frame 'claculator)))))

@@ -11,7 +11,6 @@
                 ((:file "package")
                  (:file "clac-operators")
                  (:file "lexer")
-                 (:file "parser")
                  (:file "main"))))
   :description "Calculator made purely in Common Lisp for CLOSOS"
   :in-order-to ((asdf:test-op (asdf:test-op "claculator/tests"))))

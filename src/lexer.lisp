@@ -53,5 +53,6 @@ For example: \"2+3*20% /5\" -> '(2 + 3 * 0.2 / 5)"
           :until (or (eql char :eof) (not (digit-char-p char))) ; ORDER MATTERS!
           :do (read-char stream nil :eof)
               (vector-push-extend char digits))
-    (unless (= 0 (length digits))
+    ;; If digits is not empty then parse and return
+    (unless (= 0 (length digits)) 
       (parse-integer digits))))

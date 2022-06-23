@@ -9,7 +9,7 @@
   :components ((:module "src"
                 :components
                 ((:file "package")
-                 (:file "clac-ops")
+                 (:file "clac-operators")
                  (:file "lexer")
                  (:file "parser")
                  (:file "main"))))

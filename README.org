@@ -1,9 +1,9 @@
 * Claculator - Calculator made purely in Common Lisp for CLOSOS
 ** TODO: Usage
 ** TODO: Installation
-** Author
+** Authors
 + Hamza Shahid
 ** Copyright
 Copyright (c) 2022 Hamza Shahid
 ** License
-Licensed under the BSD 2 Clause License License.
+Licensed under the BSD 2 Clause License.

@@ -1,5 +1,5 @@
 (defpackage claculator
-  (:use :clim-lisp)
+  (:use :clim-lisp :com.informatimago.rdp)
   (:local-nicknames (:c :clim)
                     (:a :alexandria))
   (:export claculator))

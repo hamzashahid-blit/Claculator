@@ -16,7 +16,7 @@
 
 
 (c:define-application-frame claculator ()
-  ((state :initform (list 0)
+  ((state :initform ""
           :accessor state)
    (screen-field :initform nil
                  :accessor screen-field))
@@ -25,22 +25,22 @@
   (:menu-bar nil)
   (:panes
     (screen :text-editor
-            :value "0"
+            :value ""
             :text-style *text-style*) 
-    (one   (make-button "1" (queue-number 1)))
-    (two   (make-button "2" (queue-number 2)))
-    (three (make-button "3" (queue-number 3)))
-    (four  (make-button "4" (queue-number 4)))
-    (five  (make-button "5" (queue-number 5)))
-    (six   (make-button "6" (queue-number 6)))
-    (seven (make-button "7" (queue-number 7)))
-    (eight (make-button "8" (queue-number 8)))
-    (nine  (make-button "9" (queue-number 9)))
-    (zero  (make-button "0" (queue-number 0)))
-    (add   (make-button "+" (queue-operator '+)))
-    (sub   (make-button "-" (queue-operator '-)))
-    (mult  (make-button "*" (queue-operator '*)))
-    (div   (make-button "/" (queue-operator '/)))
+    (one   (make-button "1" (queue-object 1)))
+    (two   (make-button "2" (queue-object 2)))
+    (three (make-button "3" (queue-object 3)))
+    (four  (make-button "4" (queue-object 4)))
+    (five  (make-button "5" (queue-object 5)))
+    (six   (make-button "6" (queue-object 6)))
+    (seven (make-button "7" (queue-object 7)))
+    (eight (make-button "8" (queue-object 8)))
+    (nine  (make-button "9" (queue-object 9)))
+    (zero  (make-button "0" (queue-object 0)))
+    (add   (make-button "+" (queue-object '+)))
+    (sub   (make-button "-" (queue-object '-)))
+    (mult  (make-button "*" (queue-object '*)))
+    (div   (make-button "/" (queue-object '/)))
     (eval  (make-button "="  #'calculate))
     (ac    (make-button "AC" #'init-ac))
     (ce    (make-button "CE" #'init-ce))
@@ -57,53 +57,39 @@
                  (list seven eight nine mult)
                  (list zero div eval int))))))
 
-(defun operator? (operator)
-  (not (numberp operator)))
+(defgeneric (setf app-state) (value))
+(defmethod (setf app-state) (value)
+  (setf (state c:*application-frame*) value))
+
+(defun app-state ()
+  (state c:*application-frame*))
 
 (defun show ()
   (setf (c:gadget-value (screen-field c:*application-frame*))
-        (str:join #\Space (reverse (mapcar #'write-to-string (state c:*application-frame*))))))
+        (app-state)))
 
-(defun queue-number (number)
+(defun queue-object (object)
   (lambda (gadget)
     (declare (ignore gadget))
-    (with-accessors ((state state)) c:*application-frame*
-      (let ((last-elem (first state)))
-        ;; Check if the last number on stack is an operator
-        (if (operator? last-elem) ;(evenp (length state))
-          (when (< (length state) 3)
-            (push number state))
-          (setf (first state) (+ (* 10 last-elem) number))))
-
-      (show))))
-
-(defun queue-operator (operator)
-  (lambda (gadget)
-    (declare (ignore gadget))
-    (with-accessors ((state state)) c:*application-frame*
-      (when (and (< (length state) 3)
-                 (oddp (length state)))
-        (push operator state)
-        (show)))))
+    (setf (state c:*application-frame*)
+          (str:concat (app-state) (write-to-string object)))
+    ;; (format t "Queued object: ~a ; State: ~a~%" object (app-state))
+    (show)))
 
 (defun calculate (gadget)
   (declare (ignore gadget))
-  (with-accessors ((state state)) c:*application-frame*
-    (when (= 3 (length state))
-      (setf state (list (funcall (second state) (first state) (third state))))
-      (show))))
+  (setf (state c:*application-frame*)
+        (write-to-string (eval (parse-maths (app-state)))))
+  (show))
 
 (defun init-ac (gadget)
   (declare (ignore gadget))
-  (setf (state c:*application-frame*) (list 0))
+  (setf (state c:*application-frame*) "")
   (show))
 
-;; TODO: FIX INIT-CE, popping won't work as it will just pop the output,
-;;       You need to keep a history 
+;; TODO: Make a history feature
 (defun init-ce (gadget)
-  (declare (ignore gadget))
-  (pop (state c:*application-frame*))
-  (show))
+  (declare (ignore gadget)))
 
 (define-claculator-command (com-quit :name t) ()
   (init-ac t)

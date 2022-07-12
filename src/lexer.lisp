@@ -2,7 +2,7 @@
 
 ;;;; TODO: Mind "3+-2"
 
-(defun tokenize-expr (stream operators)
+(defun tokenize-expression (stream operators)
   "Takes in a stream and tokenizes it into a list of symbols and numbers which could be passed to a parser to parse.
 For example: \"2+3*20% /5\" -> '(2 + 3 * 0.2 / 5)"
   (let ((tokens '()))

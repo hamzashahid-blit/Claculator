@@ -3,14 +3,17 @@
   :author "Hamza Shahid"
   :license "BSD 2 Clause License"
   :depends-on ("mcclim"
-               "bt-semaphore"  ; Todo or not to do?
-               "str")
+               "bt-semaphore"
+               "str"
+               "com.informatimago.rdp"
+               "trivial-arguments")
   :serial t
   :components ((:module "src"
                 :components
                 ((:file "package")
                  (:file "clac-operators")
                  (:file "lexer")
+                 (:file "parser")
                  (:file "main"))))
   :description "Calculator made purely in Common Lisp for CLOSOS"
   :in-order-to ((asdf:test-op (asdf:test-op "claculator/tests"))))

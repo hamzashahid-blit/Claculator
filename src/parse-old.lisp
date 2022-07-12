@@ -62,3 +62,22 @@
 (defun eval-char-expr (char-expr)
   "Takes in a list of chars and evaluates it."
   (eval (char-expr->expr char-expr)))
+
+;; TODO: parse 2+3*4+5 into (+ (+ 2 (* 3 4)) 5)
+;; TODO: parse double digits
+;; TODO: parse multi-character functions
+;; TODO: parse 3x + 5/7^3 into (+ (* 3 x) (/ 5 (^ 7 3)))
+
+(defun parse-expression (expression operator-precedence-list)
+  "Takes in an algebraic tokenized expression (possibly from TOKENIZE-EXPRESSION),
+And an OPERATOR-PRECEDENCE-LIST, which is a list of all the tokens bound to the operators
+in the order of precedence in sub lists to identify any same level operators. For example,
+in basic maths: '((^) (/ *) (+ -)) This will parse left to right according to precedence
+following the PEMDAS Principle.
+Returns a parsed version of the EXPRESSION to pass to EVALUATE-EXPRESSION to evaluate."
+  (loop :for precedent :in operator-precedence-list
+        :do (loop :for operator :in precedent
+                  :do (print nil))))
+
+(defun parse-sub-expression (operator &rest operands)
+  (apply operator operands))
